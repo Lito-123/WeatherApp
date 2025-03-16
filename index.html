@@ -77,6 +77,16 @@
                 const weatherResponse = await fetch(`https://www.metaweather.com/api/location/${woeid}/`);
                 const weatherData = await weatherResponse.json();
 
+                // Get latitude and longitude
+                const latitude = weatherData.latt_long.split(',')[0];
+                const longitude = weatherData.latt_long.split(',')[1];
+
+                // Use reverse geocoding to get the city name from latitude and longitude
+                const cityName = await getCityNameFromCoordinates(latitude, longitude);
+                
+                // Update the location with the actual city name
+                location.textContent = cityName;
+                
                 displayWeatherData(weatherData);
             } catch (error) {
                 displayError('Failed to fetch weather data.');
@@ -86,12 +96,10 @@
         // Function to display weather data
         function displayWeatherData(weatherData) {
             const weatherToday = weatherData.consolidated_weather[0]; // Get today's weather
-            const city = weatherData.title;
             const description = weatherToday.weather_state_name;
             const temp = weatherToday.the_temp.toFixed(1); // Current temperature
             const cloud = weatherToday.clouds; // Cloud coverage percentage
 
-            location.textContent = city;
             weatherDescription.textContent = description;
             temperature.textContent = `${temp}°C`;
             cloudCover.textContent = `Cloud Cover: ${cloud}%`;
@@ -104,8 +112,14 @@
             errorMessage.textContent = message;
             errorMessage.classList.remove('hidden');
         }
-    </script>
 
-</body>
+        // Function to get the city name from latitude and longitude (reverse geocoding) using Nominatim (OpenStreetMap)
+        async function getCityNameFromCoordinates(lat, lon) {
+            const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
 
-</html>
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // Get the city name from the response
+                if (data.address && data.address.c
