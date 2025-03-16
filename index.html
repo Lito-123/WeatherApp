@@ -11,6 +11,12 @@
 <body class="bg-gray-200 p-5">
 
     <div id="app" class="max-w-md mx-auto bg-white p-5 rounded-md shadow-md">
+        <!-- Latitude and Longitude Display -->
+        <div id="locationInfo" class="mb-3 text-sm text-gray-600">
+            <p>Latitude: <span id="latitude">Loading...</span></p>
+            <p>Longitude: <span id="longitude">Loading...</span></p>
+        </div>
+
         <h1 class="text-2xl font-bold text-center mb-5">Weather Forecast</h1>
 
         <!-- Form for entering the city -->
@@ -41,6 +47,8 @@
         const temperature = document.getElementById('temperature');
         const cloudCover = document.getElementById('cloudCover');
         const errorMessage = document.getElementById('errorMessage');
+        const latitudeDisplay = document.getElementById('latitude');
+        const longitudeDisplay = document.getElementById('longitude');
 
         // Load weather data for user's current location when the page loads
         window.onload = () => {
@@ -48,6 +56,11 @@
                 navigator.geolocation.getCurrentPosition(async (position) => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
+
+                    // Update the latitude and longitude displayed at the top
+                    latitudeDisplay.textContent = lat.toFixed(4);
+                    longitudeDisplay.textContent = lon.toFixed(4);
+
                     await fetchWeatherDataByCoordinates(lat, lon);
                 }, () => {
                     displayError('Unable to retrieve your location.');
