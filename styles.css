@@ -1,0 +1,11 @@
+.weather-icon {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-emoji {
+    font-size: 64px;
+}

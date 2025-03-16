@@ -6,12 +6,7 @@
     <title>Weather App</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.7/dayjs.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .weather-icon {
-            width: 100px;
-            height: 100px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-gradient-to-b from-blue-300 to-blue-500 min-h-screen font-sans text-white p-4">
     <div class="max-w-md mx-auto">
@@ -46,7 +41,7 @@
                         <h2 id="cityName" class="text-2xl font-bold"></h2>
                         <p id="weatherDescription" class="text-lg capitalize"></p>
                     </div>
-                    <div id="weatherIcon" class="weather-icon"></div>
+                    <div id="weatherIcon" class="weather-icon flex items-center justify-center"></div>
                 </div>
                 
                 <div class="mt-4">
@@ -92,167 +87,6 @@
         </div>
     </div>
 
-    <script>
-        // Constants
-        const API_KEY = 'd94979b4efc49724e397a2c42bcf9b0e'; // Get a free API key from OpenWeatherMap
-        const API_URL = 'https://api.openweathermap.org/data/2.5/weather';
-        
-        // DOM elements
-        const cityInput = document.getElementById('cityInput');
-        const searchButton = document.getElementById('searchButton');
-        const locationButton = document.getElementById('locationButton');
-        const coordinatesDisplay = document.getElementById('coordinates');
-        const weatherDataContainer = document.getElementById('weatherData');
-        const loadingIndicator = document.getElementById('loading');
-        const errorContainer = document.getElementById('error');
-        const toggleSunTimesButton = document.getElementById('toggleSunTimes');
-        const sunTimesContainer = document.getElementById('sunTimes');
-        const toggleIcon = document.getElementById('toggleIcon');
-        
-        // Event listeners
-        searchButton.addEventListener('click', handleCitySearch);
-        locationButton.addEventListener('click', getLocationWeather);
-        cityInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleCitySearch();
-        });
-        toggleSunTimesButton.addEventListener('click', toggleSunTimes);
-        
-        // Show loading state
-        function showLoading() {
-            loadingIndicator.classList.remove('hidden');
-            weatherDataContainer.classList.add('hidden');
-            errorContainer.classList.add('hidden');
-        }
-        
-        // Hide loading state
-        function hideLoading() {
-            loadingIndicator.classList.add('hidden');
-        }
-        
-        // Show error
-        function showError(message) {
-            errorContainer.textContent = message;
-            errorContainer.classList.remove('hidden');
-            weatherDataContainer.classList.add('hidden');
-            hideLoading();
-        }
-        
-        // Toggle sunrise/sunset info
-        function toggleSunTimes() {
-            sunTimesContainer.classList.toggle('hidden');
-            toggleIcon.textContent = sunTimesContainer.classList.contains('hidden') ? '▼' : '▲';
-        }
-        
-        // Handle city search
-        function handleCitySearch() {
-            const city = cityInput.value.trim();
-            if (city) {
-                getWeatherByCity(city);
-            } else {
-                showError('Please enter a city name');
-            }
-        }
-        
-        // Get weather by city
-        function getWeatherByCity(city) {
-            showLoading();
-            coordinatesDisplay.textContent = '';
-            
-            fetch(`${API_URL}?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(response.status === 404 
-                            ? 'City not found. Please check the spelling.' 
-                            : 'Unable to fetch weather data');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    displayWeatherData(data);
-                })
-                .catch(error => {
-                    showError(error.message);
-                });
-        }
-        
-        // Get user's location and weather
-        function getLocationWeather() {
-            if (navigator.geolocation) {
-                showLoading();
-                navigator.geolocation.getCurrentPosition(position => {
-                    const { latitude, longitude } = position.coords;
-                    coordinatesDisplay.textContent = `Lat: ${latitude.toFixed(4)}, Long: ${longitude.toFixed(4)}`;
-                    getWeatherByCoordinates(latitude, longitude);
-                }, error => {
-                    let errorMessage = 'Unable to retrieve your location';
-                    
-                    if (error.code === error.PERMISSION_DENIED) {
-                        errorMessage = 'Location permission denied. Please enable location access.';
-                    } else if (error.code === error.POSITION_UNAVAILABLE) {
-                        errorMessage = 'Location information is unavailable.';
-                    } else if (error.code === error.TIMEOUT) {
-                        errorMessage = 'The request to get location timed out.';
-                    }
-                    
-                    showError(errorMessage);
-                });
-            } else {
-                showError('Geolocation is not supported by your browser');
-            }
-        }
-        
-        // Get weather by coordinates
-        function getWeatherByCoordinates(latitude, longitude) {
-            fetch(`${API_URL}?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Unable to fetch weather data');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    displayWeatherData(data);
-                })
-                .catch(error => {
-                    showError(error.message);
-                });
-        }
-        
-        // Display weather data
-        function displayWeatherData(data) {
-            // Hide loading indicator
-            hideLoading();
-            
-            // Show weather container
-            weatherDataContainer.classList.remove('hidden');
-            
-            // Update UI with weather data
-            document.getElementById('cityName').textContent = `${data.name}, ${data.sys.country}`;
-            document.getElementById('weatherDescription').textContent = data.weather[0].description;
-            document.getElementById('temperature').textContent = `${Math.round(data.main.temp)}°C`;
-            document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°C`;
-            document.getElementById('humidity').textContent = `${data.main.humidity}%`;
-            document.getElementById('wind').textContent = `${(data.wind.speed * 3.6).toFixed(1)} km/h`;
-            document.getElementById('cloudCover').textContent = `${data.clouds.all}%`;
-            
-            // Sun times
-            const sunriseTime = dayjs.unix(data.sys.sunrise).format('HH:mm');
-            const sunsetTime = dayjs.unix(data.sys.sunset).format('HH:mm');
-            document.getElementById('sunrise').textContent = sunriseTime;
-            document.getElementById('sunset').textContent = sunsetTime;
-            
-            // Weather icon
-            const weatherIcon = document.getElementById('weatherIcon');
-            const iconCode = data.weather[0].icon;
-            weatherIcon.innerHTML = `<img src="https://openweathermap.org/img/wn/${iconCode}@2x.png" alt="${data.weather[0].description}">`;
-        }
-
-        // Initialize - check if API key is set
-        window.onload = function() {
-            if (!API_KEY) {
-                showError('Please add your OpenWeatherMap API key in the code. Get a free key at openweathermap.org');
-            }
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
