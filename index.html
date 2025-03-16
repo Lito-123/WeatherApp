@@ -61,9 +61,12 @@
                     latitudeDisplay.textContent = lat.toFixed(4);
                     longitudeDisplay.textContent = lon.toFixed(4);
 
+                    // Fetch weather for the obtained latitude and longitude
                     await fetchWeatherDataByCoordinates(lat, lon);
-                }, () => {
-                    displayError('Unable to retrieve your location.');
+                }, (error) => {
+                    // Handle error if location access fails
+                    displayError('Unable to retrieve your location. Please allow location access.');
+                    console.error(error);
                 });
             } else {
                 displayError('Geolocation is not supported by this browser.');
