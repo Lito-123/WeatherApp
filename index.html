@@ -3,84 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
+    <title>Weather</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.7/dayjs.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gradient-to-b from-blue-300 to-blue-500 min-h-screen font-sans text-white p-4">
-    <div class="max-w-md mx-auto">
-        <h1 class="text-2xl font-bold text-center mb-4">Weather App</h1>
+<body>
+    <div class="container">
+        <div class="status-bar">
+            <span>Weather</span>
+            <span id="current-time"></span>
+        </div>
         
-        <!-- Location Input -->
-        <div class="bg-blue-600/50 rounded-lg p-4 mb-4 backdrop-blur-sm">
-            <div class="flex flex-col gap-2 mb-2">
-                <input type="text" id="cityInput" placeholder="Enter city name" class="p-2 rounded text-gray-800 w-full">
-                <div class="flex gap-2">
-                    <button id="searchButton" class="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 rounded flex-1">Search</button>
-                    <button id="locationButton" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded flex-1">Use My Location</button>
-                </div>
+        <div class="search-container">
+            <input type="text" id="cityInput" placeholder="Search for a city" class="search-bar">
+            <div class="search-buttons">
+                <button id="searchButton" class="btn">Search</button>
+                <button id="locationButton" class="btn">Current Location</button>
             </div>
-            <div id="coordinates" class="text-xs mt-2 text-center"></div>
+            <div id="coordinates" class="coordinates"></div>
         </div>
         
-        <!-- Loading indicator -->
-        <div id="loading" class="hidden text-center py-8">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-            <p class="mt-2">Loading weather data...</p>
+        <div id="loading" class="loading hidden">
+            <div class="loading-spinner"></div>
+            <p>Updating weather</p>
         </div>
         
-        <!-- Error message -->
-        <div id="error" class="hidden bg-red-500/70 backdrop-blur-sm p-4 rounded-lg text-center mb-4"></div>
+        <div id="error" class="error hidden"></div>
         
-        <!-- Weather Data -->
-        <div id="weatherData" class="hidden bg-white/20 backdrop-blur-sm rounded-lg overflow-hidden">
-            <div class="p-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 id="cityName" class="text-2xl font-bold"></h2>
-                        <p id="weatherDescription" class="text-lg capitalize"></p>
-                    </div>
-                    <div id="weatherIcon" class="weather-icon flex items-center justify-center"></div>
+        <div id="weatherData" class="hidden">
+            <div class="weather-container">
+                <h1 id="cityName" class="location"></h1>
+                <div class="description">
+                    <span id="weatherDescription"></span>
                 </div>
-                
-                <div class="mt-4">
-                    <div class="text-4xl font-bold mb-2" id="temperature"></div>
-                    <div class="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                            <p class="opacity-75">Feels like</p>
-                            <p id="feelsLike" class="font-semibold"></p>
-                        </div>
-                        <div>
-                            <p class="opacity-75">Humidity</p>
-                            <p id="humidity" class="font-semibold"></p>
-                        </div>
-                        <div>
-                            <p class="opacity-75">Wind</p>
-                            <p id="wind" class="font-semibold"></p>
-                        </div>
-                        <div>
-                            <p class="opacity-75">Cloud Cover</p>
-                            <p id="cloudCover" class="font-semibold"></p>
-                        </div>
+                <div id="weatherIcon" class="weather-icon"></div>
+                <div id="temperature" class="temperature"></div>
+            </div>
+            
+            <div class="weather-details">
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Feels Like</div>
+                        <div id="feelsLike" class="detail-value"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Humidity</div>
+                        <div id="humidity" class="detail-value"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Wind</div>
+                        <div id="wind" class="detail-value"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Cloud Cover</div>
+                        <div id="cloudCover" class="detail-value"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- Sun Times -->
-            <div class="border-t border-white/20 p-4" id="sunTimesSection">
-                <button id="toggleSunTimes" class="flex justify-between items-center w-full">
-                    <span class="font-medium">Sunrise & Sunset</span>
-                    <span id="toggleIcon">▼</span>
-                </button>
-                <div id="sunTimes" class="hidden mt-2 grid grid-cols-2 gap-4 text-center">
-                    <div>
-                        <p class="opacity-75">Sunrise</p>
-                        <p id="sunrise" class="font-semibold"></p>
+            <div id="sunTimesSection" class="sun-times">
+                <div class="sun-times-header">
+                    <div class="sun-times-title">Sunrise & Sunset</div>
+                    <button id="toggleSunTimes" class="toggle-button">
+                        <span id="toggleIcon">▼</span>
+                    </button>
+                </div>
+                <div id="sunTimes" class="sun-times-grid hidden">
+                    <div class="sun-item">
+                        <div class="sun-label">Sunrise</div>
+                        <div id="sunrise" class="sun-value"></div>
                     </div>
-                    <div>
-                        <p class="opacity-75">Sunset</p>
-                        <p id="sunset" class="font-semibold"></p>
+                    <div class="sun-item">
+                        <div class="sun-label">Sunset</div>
+                        <div id="sunset" class="sun-value"></div>
                     </div>
                 </div>
             </div>
